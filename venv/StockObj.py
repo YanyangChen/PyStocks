@@ -64,8 +64,8 @@ class StockObj:
         :return:
         """
 
-        sql = ''' INSERT INTO stocks(idx,stkdate,open,close,volumn)
-                  VALUES(?,?,?,?,?) '''
+        sql = ''' INSERT INTO stocks(idx,stkdate,open,high,low,close,adjclose,volumn)
+                  VALUES(?,?,?,?,?,?,?,?) '''
         cur = conn.cursor()
         cur.execute(sql, stock)
         return cur.lastrowid
@@ -74,7 +74,9 @@ class StockObj:
     def web_scrap(self):
             # page = requests.get("http://dataquestio.github.io/web-scraping-pages/simple.html")
             # page = requests.get("https://finance.yahoo.com/quote/0700.HK/history?period1=1471968000&period2=1535040000&interval=1d&filter=history&frequency=1d")
-            page = requests.get("https://finance.yahoo.com/quote/0700.HK/history?period1=1471968000&period2=1503504000&interval=1d&filter=history&frequency=1d")
+            # page = requests.get("https://finance.yahoo.com/quote/0700.HK/history?period1=1471968000&period2=1482336000&interval=1d&filter=history&frequency=1d")
+            page = requests.get("https://finance.yahoo.com/quote/0700.HK/history?period1=1451232000&period2=1461600000&interval=1d&filter=history&frequency=1d")
+
 
             soup = BeautifulSoup(page.content, 'html.parser')
             # print(soup.prettify())
@@ -85,7 +87,7 @@ class StockObj:
             print(soup.find_all('td'))
             print([item.get_text() for item in list(soup.find_all('td'))])
             # for item in list(soup.find_all('td')):
-
+            record_list=[]
             daylist = [item.get_text() for item in list(soup.find_all('td'))]
             indexes = [index for index in range(len(daylist)) if daylist[index].find("Dividend") != -1]
             print(indexes)
@@ -107,7 +109,7 @@ class StockObj:
 
                     if index % 7 == 0:
                         sd1 = stkday()
-                        sd1.Date = daylist[index];
+                        sd1.Date = daylist[index]
                         sd1.Open = daylist[index + 1]
                         sd1.High = daylist[index + 2]
                         sd1.Low = daylist[index + 3]
@@ -115,7 +117,8 @@ class StockObj:
                         sd1.AdjClose = daylist[index + 5]
                         sd1.Volumn = daylist[index + 6]
                         print([sd1.Date, sd1.Open, sd1.High, sd1.Low, sd1.Close, sd1.AdjClose, sd1.Volumn])
-
+                        record_list.append(sd1)
+            return record_list
             # html = list(soup.children)[2]
             # body = list(html.children)[3]
             # print(list(body.children))
@@ -123,6 +126,65 @@ class StockObj:
             # print(p.get_text())
             # p.get_text()
 
+    def scrab2years_from_2016(self):
+        period = [None] * 7
+        period[0] = 1451232000
+        period[1] = 1451232000 + 3600 * 24 * 122
+        period[2] = 1451232000 + 3600 * 24 * 122 * 2
+        period[3] = 1451232000 + 3600 * 24 * 122 * 3
+        period[4] = 1451232000 + 3600 * 24 * 122 * 4
+        period[5] = 1451232000 + 3600 * 24 * 122 * 5
+        period[6] = 1451232000 + 3600 * 24 * 122 * 6
+        twoYDaily_rec = []
+        for i in range(1, 6):
+            page = requests.get(
+                "https://finance.yahoo.com/quote/0700.HK/history?period1="+str(period[i-1] + 3600 * 24)+"&period2="+str(period[i])+"&interval=1d&filter=history&frequency=1d")
+
+            soup = BeautifulSoup(page.content, 'html.parser')
+            # print(soup.prettify())
+            # print("-----------------list(soup.children)-------------------")
+            # print(list(soup.children)[1])
+            # print("-----------------[type(item) for item in list(soup.children)]-------------------")
+            # print([type(item) for item in list(soup.children)[1]])
+            # print(soup.find_all('td'))
+            # print([item.get_text() for item in list(soup.find_all('td'))])
+            # for item in list(soup.find_all('td')):
+            record_list = []
+            daylist = [item.get_text() for item in list(soup.find_all('td'))]
+            indexes = [index for index in range(len(daylist)) if daylist[index].find("Dividend") != -1]
+            print(indexes)
+            print([idx for idx in indexes])
+            for idx in indexes:
+                daylist.pop(idx)
+                daylist.pop(idx - 1)
+            # del daylist[[idx for idx in indexes]
+            # daylist.remove("0.88 Dividend")
+
+            for index in range(len(daylist)):
+                # print(list(soup.find_all('td').count(item)))
+                print(index)
+                if (daylist[index].find("*") == -1):
+
+                    print(daylist[index])
+                    # if((list(soup.find_all('td'))[index].find('span').get_text().find("Dividend") != -1)):
+                    #     index = index - 2
+
+                    if index % 7 == 0:
+                        sd1 = stkday()
+                        sd1.Date = daylist[index]
+                        sd1.Open = daylist[index + 1]
+                        sd1.High = daylist[index + 2]
+                        sd1.Low = daylist[index + 3]
+                        sd1.Close = daylist[index + 4]
+                        sd1.AdjClose = daylist[index + 5]
+                        sd1.Volumn = daylist[index + 6]
+                        print([sd1.Date, sd1.Open, sd1.High, sd1.Low, sd1.Close, sd1.AdjClose, sd1.Volumn])
+                        record_list.append(sd1)
+            # return record_list
+            twoYDaily_rec = twoYDaily_rec + record_list
+            print(len(twoYDaily_rec))
+            # twoYDaily_rec.append(record_list)
+        return twoYDaily_rec
 
     def main(self):
         # database = "/Users/chenyanyang/tst.db"
@@ -132,11 +194,15 @@ class StockObj:
         with conn:
             # print("1. Query task by priority:")
             # select_task_by_priority(conn, 1)
+            # stk_r_list = self.web_scrap()
+            stk_r_list = self.scrab2years_from_2016()
+            stk_r_list = list(set(stk_r_list))
+            print(len(stk_r_list))
 
-            stock_1 = (self.stock, 'Jun-07-2036', 300, 302, 87000)
             try:
-
-                self.create_stock(conn, stock_1)
+                for stk in stk_r_list:
+                    stock_1 = (self.stock, stk.Date, stk.Open, stk.High, stk.Low, stk.Close, stk.AdjClose, stk.Volumn)
+                    self.create_stock(conn, stock_1)
             except sqlite3.IntegrityError:
                 print("duplicate data")
             finally:
@@ -146,9 +212,10 @@ class StockObj:
                 proxies = {
                     'http': 'http://proxy1.edb.gov.hk:8080/',
                 }
-                self.web_scrap()
+                # self.web_scrap()
 
 
-abc = StockObj("abc", "0701.HK")
+
+abc = StockObj("abc", "0702.HK")
 
 abc.main();
