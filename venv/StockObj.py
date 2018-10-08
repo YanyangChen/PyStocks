@@ -192,8 +192,8 @@ class StockObj:
         return twoYDaily_rec
 
     def main(self):
-        # database = "/Users/chenyanyang/tst.db"
-        database = "C:\\stks\\tst.db"
+        database = "/Users/chenyanyang/tst.db"
+        # database = "C:\\stks\\tst.db"
         # create a database connection
         conn = self.create_connection(database)
         with conn:
@@ -213,15 +213,20 @@ class StockObj:
                     print("duplicate data")
                 finally:
                     print("2. Query all tasks")
-                    self.select_all_tasks(conn)
+                    # self.select_all_tasks(conn)
 
                     proxies = {
                         'http': 'http://proxy1.edb.gov.hk:8080/',
                     }
                 # self.web_scrap()
 
+with open('./hkstks') as f:
+    lines = f.read().splitlines()
+print(lines)
 
+for line in lines[913:]:
+    print(str(line))
+    abc = StockObj("abc", str(line))
+    abc.main()
 
-abc = StockObj("abc", "0702.HK")
-
-abc.main();
+# abc.main();
