@@ -1,5 +1,6 @@
 import sqlite3
 import requests
+import datetime
 from bs4 import BeautifulSoup
 from sqlite3 import Error
 from stkday import stkday
@@ -127,7 +128,7 @@ class StockObj:
             # p.get_text()
 
     def scrab2years_from_2016(self):
-        period = [None] * 7
+        period = [None] * 11
         period[0] = 1451232000
         period[1] = 1451232000 + 3600 * 24 * 122
         period[2] = 1451232000 + 3600 * 24 * 122 * 2
@@ -135,8 +136,12 @@ class StockObj:
         period[4] = 1451232000 + 3600 * 24 * 122 * 4
         period[5] = 1451232000 + 3600 * 24 * 122 * 5
         period[6] = 1451232000 + 3600 * 24 * 122 * 6
+        period[7] = 1451232000 + 3600 * 24 * 122 * 7
+        period[8] = 1451232000 + 3600 * 24 * 122 * 8
+        period[9] = 1451232000 + 3600 * 24 * 122 * 9
+        period[10] = 1451232000 + 3600 * 24 * 122 * 10
         twoYDaily_rec = []
-        for i in range(1, 6):
+        for i in range(1, 10):
             page = requests.get(
                 "https://finance.yahoo.com/quote/0700.HK/history?period1="+str(period[i-1] + 3600 * 24)+"&period2="+str(period[i])+"&interval=1d&filter=history&frequency=1d")
 
@@ -171,7 +176,7 @@ class StockObj:
 
                     if index % 7 == 0:
                         sd1 = stkday()
-                        sd1.Date = daylist[index]
+                        sd1.Date = datetime.datetime.strptime(daylist[index], '%b %d, %Y').strftime('%Y-%m-%d')
                         sd1.Open = daylist[index + 1]
                         sd1.High = daylist[index + 2]
                         sd1.Low = daylist[index + 3]
@@ -199,19 +204,20 @@ class StockObj:
             stk_r_list = list(set(stk_r_list))
             print(len(stk_r_list))
 
-            try:
-                for stk in stk_r_list:
+
+            for stk in stk_r_list:
+                try:
                     stock_1 = (self.stock, stk.Date, stk.Open, stk.High, stk.Low, stk.Close, stk.AdjClose, stk.Volumn)
                     self.create_stock(conn, stock_1)
-            except sqlite3.IntegrityError:
-                print("duplicate data")
-            finally:
-                print("2. Query all tasks")
-                self.select_all_tasks(conn)
+                except sqlite3.IntegrityError:
+                    print("duplicate data")
+                finally:
+                    print("2. Query all tasks")
+                    self.select_all_tasks(conn)
 
-                proxies = {
-                    'http': 'http://proxy1.edb.gov.hk:8080/',
-                }
+                    proxies = {
+                        'http': 'http://proxy1.edb.gov.hk:8080/',
+                    }
                 # self.web_scrap()
 
 
