@@ -195,55 +195,59 @@ class StockObj:
             daylist = [item.get_text() for item in list(soup.find_all('td'))]
 
             #### ignore null tickets
-            if daylist[0].find(".HK") != -1 or daylist[0].find(".SZ") != -1 or daylist[0] is None:  # what if other foreign tickets? need to test daylist when dealing with other cases
-                return []
+            try:
+                if daylist[0].find(".HK") != -1 or daylist[0].find(".SZ") != -1 or daylist[0].find(".SS") != -1 or daylist[0] is None:  # what if other foreign tickets? need to test daylist when dealing with other cases
+                    return []
 
-            #### delete Dividend notes
-            indexes = [index for index in range(len(daylist)) if daylist[index].find("Dividend") != -1]
-            print(indexes)
-            print([idx for idx in indexes])
-            print(len(daylist))
-            for idx in reversed(indexes): # Interesting! normal query may cause the index bigger than size
-                print(idx)
-                print("length in loop" + str(len(daylist)))
-                daylist.pop(idx)
-                daylist.pop(idx - 1)
-                print(str(idx) + "poped")
-            #### delete Stock Split notes
-            split_indexes = [index for index in range(len(daylist)) if daylist[index].find("Stock Split") != -1]
-            print(split_indexes)
-            print([idx for idx in split_indexes])
-            for idx in reversed(split_indexes):
-                daylist.pop(idx)
-                daylist.pop(idx - 1)
-            # del daylist[[idx for idx in indexes]
-            # daylist.remove("0.88 Dividend")
+                #### delete Dividend notes
+                indexes = [index for index in range(len(daylist)) if daylist[index].find("Dividend") != -1]
+                print(indexes)
+                print([idx for idx in indexes])
+                print(len(daylist))
+                for idx in reversed(indexes): # Interesting! normal query may cause the index bigger than size
+                    print(idx)
+                    print("length in loop" + str(len(daylist)))
+                    daylist.pop(idx)
+                    daylist.pop(idx - 1)
+                    print(str(idx) + "poped")
+                #### delete Stock Split notes
+                split_indexes = [index for index in range(len(daylist)) if daylist[index].find("Stock Split") != -1]
+                print(split_indexes)
+                print([idx for idx in split_indexes])
+                for idx in reversed(split_indexes):
+                    daylist.pop(idx)
+                    daylist.pop(idx - 1)
+                # del daylist[[idx for idx in indexes]
+                # daylist.remove("0.88 Dividend")
 
-            for index in range(len(daylist)):
-                # print(list(soup.find_all('td').count(item)))
-                print(index)
-                if (daylist[index].find("*") == -1):
+                for index in range(len(daylist)):
+                    # print(list(soup.find_all('td').count(item)))
+                    print(index)
+                    if (daylist[index].find("*") == -1):
 
-                    print(daylist[index])
-                    # if((list(soup.find_all('td'))[index].find('span').get_text().find("Dividend") != -1)):
-                    #     index = index - 2
+                        print(daylist[index])
+                        # if((list(soup.find_all('td'))[index].find('span').get_text().find("Dividend") != -1)):
+                        #     index = index - 2
 
-                    if index % 7 == 0:
-                        print([daylist[index], daylist[index+1], daylist[index+2], daylist[index+3], daylist[index+4], daylist[index+5], daylist[index+6]])
-                        sd1 = stkday()
-                        sd1.Date = datetime.datetime.strptime(daylist[index], '%b %d, %Y').strftime('%Y-%m-%d')
-                        sd1.Open = daylist[index + 1]
-                        sd1.High = daylist[index + 2]
-                        sd1.Low = daylist[index + 3]
-                        sd1.Close = daylist[index + 4]
-                        sd1.AdjClose = daylist[index + 5]
-                        sd1.Volumn = daylist[index + 6]
-                        print([sd1.Date, sd1.Open, sd1.High, sd1.Low, sd1.Close, sd1.AdjClose, sd1.Volumn])
-                        record_list.append(sd1)
-            # return record_list
-            twoYDaily_rec = twoYDaily_rec + record_list
-            print(len(twoYDaily_rec))
-            # twoYDaily_rec.append(record_list)
+                        if index % 7 == 0:
+                            print([daylist[index], daylist[index+1], daylist[index+2], daylist[index+3], daylist[index+4], daylist[index+5], daylist[index+6]])
+                            sd1 = stkday()
+                            sd1.Date = datetime.datetime.strptime(daylist[index], '%b %d, %Y').strftime('%Y-%m-%d')
+                            sd1.Open = daylist[index + 1]
+                            sd1.High = daylist[index + 2]
+                            sd1.Low = daylist[index + 3]
+                            sd1.Close = daylist[index + 4]
+                            sd1.AdjClose = daylist[index + 5]
+                            sd1.Volumn = daylist[index + 6]
+                            print([sd1.Date, sd1.Open, sd1.High, sd1.Low, sd1.Close, sd1.AdjClose, sd1.Volumn])
+                            record_list.append(sd1)
+                # return record_list
+                twoYDaily_rec = twoYDaily_rec + record_list
+                print(len(twoYDaily_rec))
+                # twoYDaily_rec.append(record_list)
+            except IndexError:
+                twoYDaily_rec = []
+
         return twoYDaily_rec
 
     def update2today(self):
@@ -270,50 +274,54 @@ class StockObj:
         daylist = [item.get_text() for item in list(soup.find_all('td'))]
 
         #### ignore null tickets
-        if daylist[0].find(".HK") != -1 or daylist[0].find(".SZ") != -1 or daylist[0] is None:  # what if other foreign tickets? need to test daylist when dealing with other cases
-            return []
-        #### delete Dividend notes
-        indexes = [index for index in range(len(daylist)) if daylist[index].find("Dividend") != -1]
-        print(indexes)
-        print([idx for idx in indexes])
-        print(len(daylist))
-        for idx in reversed(indexes):  # Interesting! normal query may cause the index bigger than size
-            print(idx)
-            print("length in loop" + str(len(daylist)))
-            daylist.pop(idx)
-            daylist.pop(idx - 1)
-            print(str(idx) + "poped")
-        #### delete Stock Split notes
-        split_indexes = [index for index in range(len(daylist)) if daylist[index].find("Stock Split") != -1]
-        print(split_indexes)
-        print([idx for idx in split_indexes])
-        for idx in split_indexes:
-            daylist.pop(idx)
-            daylist.pop(idx - 1)
-        # del daylist[[idx for idx in indexes]
-        # daylist.remove("0.88 Dividend")
+        try:
+            if daylist[0].find(".HK") != -1 or daylist[0].find(".SZ") != -1  or daylist[0].find(".SS") != -1 or daylist[0] is None:  # what if other foreign tickets? need to test daylist when dealing with other cases
+                return []
+            #### delete Dividend notes
+            indexes = [index for index in range(len(daylist)) if daylist[index].find("Dividend") != -1]
+            print(indexes)
+            print([idx for idx in indexes])
+            print(len(daylist))
+            for idx in reversed(indexes):  # Interesting! normal query may cause the index bigger than size
+                print(idx)
+                print("length in loop" + str(len(daylist)))
+                daylist.pop(idx)
+                daylist.pop(idx - 1)
+                print(str(idx) + "poped")
+            #### delete Stock Split notes
+            split_indexes = [index for index in range(len(daylist)) if daylist[index].find("Stock Split") != -1]
+            print(split_indexes)
+            print([idx for idx in split_indexes])
+            for idx in split_indexes:
+                daylist.pop(idx)
+                daylist.pop(idx - 1)
+            # del daylist[[idx for idx in indexes]
+            # daylist.remove("0.88 Dividend")
 
-        for index in range(len(daylist)):
-            # print(list(soup.find_all('td').count(item)))
-            print(index)
-            if (daylist[index].find("*") == -1):
+            for index in range(len(daylist)):
+                # print(list(soup.find_all('td').count(item)))
+                print(index)
+                if (daylist[index].find("*") == -1):
 
-                print(daylist[index])
-                # if((list(soup.find_all('td'))[index].find('span').get_text().find("Dividend") != -1)):
-                #     index = index - 2
+                    print(daylist[index])
+                    # if((list(soup.find_all('td'))[index].find('span').get_text().find("Dividend") != -1)):
+                    #     index = index - 2
 
-                if index % 7 == 0:
-                    sd1 = stkday()
-                    sd1.Date = datetime.datetime.strptime(daylist[index], '%b %d, %Y').strftime('%Y-%m-%d')
-                    sd1.Open = daylist[index + 1]
-                    sd1.High = daylist[index + 2]
-                    sd1.Low = daylist[index + 3]
-                    sd1.Close = daylist[index + 4]
-                    sd1.AdjClose = daylist[index + 5]
-                    sd1.Volumn = daylist[index + 6]
-                    print([sd1.Date, sd1.Open, sd1.High, sd1.Low, sd1.Close, sd1.AdjClose, sd1.Volumn])
-                    record_list.append(sd1)
-        return record_list
+                    if index % 7 == 0:
+                        sd1 = stkday()
+                        sd1.Date = datetime.datetime.strptime(daylist[index], '%b %d, %Y').strftime('%Y-%m-%d')
+                        sd1.Open = daylist[index + 1]
+                        sd1.High = daylist[index + 2]
+                        sd1.Low = daylist[index + 3]
+                        sd1.Close = daylist[index + 4]
+                        sd1.AdjClose = daylist[index + 5]
+                        sd1.Volumn = daylist[index + 6]
+                        print([sd1.Date, sd1.Open, sd1.High, sd1.Low, sd1.Close, sd1.AdjClose, sd1.Volumn])
+                        record_list.append(sd1)
+            return record_list
+        except IndexError:
+            record_list = []
+            return record_list
 
     def main(self):
         # database = "/Users/chenyanyang/tst.db"
@@ -403,8 +411,20 @@ class StockObj:
 # relationships
 # retrieve and presented processed data?
 
-#1 step 1 product: pure world market data
+# *1 batch update daily data on godaddy server
+# *2 business model 1 : sell stock market data online
+# *3 business model 2 : show data and plots on website
+# *4 business model 3 : sell this technology and consultancy to other companies or individuals, price for different types of products
+# *5 business model 4 : sell reports or post online, let customers order those reports
+# *6 business model 5 : open up a website for general report download, and different web app function for user to input for their generic analysis
+
+#1 step 1 product: pure world market data "in the name of sharing experimental simulation data, not real market data, with warnings"
 #2 step 2 product: selecting of stocks: "up for 3 days" "month average accelerating"
 #3 step 3 relation informations
 #4 step 4 prediction based on information: exp: "A and B are highly realated, A is known and has been up for 5 days,
 # 'what are those Bs and has just been up for 3 days' or 'What are those Bs that's in different time zone'"
+#5 step 5 list all that highly related stock pairs
+#6 step 6 list all a=f(b,c,d) relation stocks, bonds by machine learning regression and validation.
+#7 step 7 list all historical economic issues and find their relation with stock indexes, or bond, real estate or other financial product indexes
+#8 step 8 Apply the same idea to different world trade datas or production datas
+#9 step 9 Build up input combination functions
