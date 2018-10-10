@@ -143,7 +143,7 @@ class StockObj:
         twoYDaily_rec = []
         for i in range(1, 10):
             page = requests.get(
-                "https://finance.yahoo.com/quote/0700.HK/history?period1="+str(period[i-1] + 3600 * 24)+"&period2="+str(period[i])+"&interval=1d&filter=history&frequency=1d")
+                "https://finance.yahoo.com/quote/"+self.stock+"/history?period1="+str(period[i-1] + 3600 * 24)+"&period2="+str(period[i])+"&interval=1d&filter=history&frequency=1d")
 
             soup = BeautifulSoup(page.content, 'html.parser')
             # print(soup.prettify())
@@ -155,11 +155,29 @@ class StockObj:
             # print([item.get_text() for item in list(soup.find_all('td'))])
             # for item in list(soup.find_all('td')):
             record_list = []
+
+
             daylist = [item.get_text() for item in list(soup.find_all('td'))]
+
+            #### ignore null tickets
+            if daylist[0].find(".HK") != -1:     # what if other foreign tickets? need to test daylist when dealing with other cases
+                break
+            #### delete Dividend notes
             indexes = [index for index in range(len(daylist)) if daylist[index].find("Dividend") != -1]
             print(indexes)
             print([idx for idx in indexes])
-            for idx in indexes:
+            print(len(daylist))
+            for idx in reversed(indexes): # Interesting! normal query may cause the index bigger than size
+                print(idx)
+                print("length in loop" + str(len(daylist)))
+                daylist.pop(idx)
+                daylist.pop(idx - 1)
+                print(str(idx) + "poped")
+            #### delete Stock Split notes
+            split_indexes = [index for index in range(len(daylist)) if daylist[index].find("Stock Split") != -1]
+            print(split_indexes)
+            print([idx for idx in split_indexes])
+            for idx in reversed(split_indexes):
                 daylist.pop(idx)
                 daylist.pop(idx - 1)
             # del daylist[[idx for idx in indexes]
@@ -191,9 +209,78 @@ class StockObj:
             # twoYDaily_rec.append(record_list)
         return twoYDaily_rec
 
+    def update2today(self):
+
+        # flags should be able to update
+        flag_day_sec = 1538323200   # 2018-10-01
+        flag_day = "2018-10-01"
+        # flag_day_Date = datetime.datetime.strptime(flag_day, '%Y-%m-%d').strftime('%Y-%m-%d')
+        dif = (datetime.datetime.now() - datetime.datetime.strptime(flag_day, '%Y-%m-%d')).days
+        page = requests.get(
+            "https://finance.yahoo.com/quote/" + self.stock + "/history?period1=" + str(flag_day_sec + 3600 * 24) + "&period2=" + str(flag_day_sec + 3600 * 24 * dif) + "&interval=1d&filter=history&frequency=1d")
+
+        soup = BeautifulSoup(page.content, 'html.parser')
+        # print(soup.prettify())
+        # print("-----------------list(soup.children)-------------------")
+        # print(list(soup.children)[1])
+        # print("-----------------[type(item) for item in list(soup.children)]-------------------")
+        # print([type(item) for item in list(soup.children)[1]])
+        # print(soup.find_all('td'))
+        # print([item.get_text() for item in list(soup.find_all('td'))])
+        # for item in list(soup.find_all('td')):
+        record_list = []
+        updated_Daily_rec = []
+        daylist = [item.get_text() for item in list(soup.find_all('td'))]
+
+        #### ignore null tickets
+        if daylist[0].find(".HK") != -1:  # what if other foreign tickets? need to test daylist when dealing with other cases
+            return []
+        #### delete Dividend notes
+        indexes = [index for index in range(len(daylist)) if daylist[index].find("Dividend") != -1]
+        print(indexes)
+        print([idx for idx in indexes])
+        print(len(daylist))
+        for idx in reversed(indexes):  # Interesting! normal query may cause the index bigger than size
+            print(idx)
+            print("length in loop" + str(len(daylist)))
+            daylist.pop(idx)
+            daylist.pop(idx - 1)
+            print(str(idx) + "poped")
+        #### delete Stock Split notes
+        split_indexes = [index for index in range(len(daylist)) if daylist[index].find("Stock Split") != -1]
+        print(split_indexes)
+        print([idx for idx in split_indexes])
+        for idx in split_indexes:
+            daylist.pop(idx)
+            daylist.pop(idx - 1)
+        # del daylist[[idx for idx in indexes]
+        # daylist.remove("0.88 Dividend")
+
+        for index in range(len(daylist)):
+            # print(list(soup.find_all('td').count(item)))
+            print(index)
+            if (daylist[index].find("*") == -1):
+
+                print(daylist[index])
+                # if((list(soup.find_all('td'))[index].find('span').get_text().find("Dividend") != -1)):
+                #     index = index - 2
+
+                if index % 7 == 0:
+                    sd1 = stkday()
+                    sd1.Date = datetime.datetime.strptime(daylist[index], '%b %d, %Y').strftime('%Y-%m-%d')
+                    sd1.Open = daylist[index + 1]
+                    sd1.High = daylist[index + 2]
+                    sd1.Low = daylist[index + 3]
+                    sd1.Close = daylist[index + 4]
+                    sd1.AdjClose = daylist[index + 5]
+                    sd1.Volumn = daylist[index + 6]
+                    print([sd1.Date, sd1.Open, sd1.High, sd1.Low, sd1.Close, sd1.AdjClose, sd1.Volumn])
+                    record_list.append(sd1)
+        return record_list
+
     def main(self):
-        database = "/Users/chenyanyang/tst.db"
-        # database = "C:\\stks\\tst.db"
+        # database = "/Users/chenyanyang/tst.db"
+        database = "C:\\stks\\tst.db"
         # create a database connection
         conn = self.create_connection(database)
         with conn:
@@ -220,13 +307,33 @@ class StockObj:
                     }
                 # self.web_scrap()
 
-with open('./hkstks') as f:
-    lines = f.read().splitlines()
-print(lines)
-
-for line in lines[913:]:
-    print(str(line))
-    abc = StockObj("abc", str(line))
-    abc.main()
-
+# with open('./hkstks') as f:
+#     lines = f.read().splitlines()
+# print(lines)
+#
+# # there may be some stocks left before index 534
+# #856
+# for line in lines[1893:]:
+#     print(str(line))
+#     abc = StockObj("abc", str(line))
+#     abc.main()
+# abc = StockObj("abc", "1125.HK")
+# abc.main()
 # abc.main();
+
+# List website:
+# http://www.eoddata.com/stocklist/NYSE/A.htm?e=NYSE&l=A
+#
+# List download:
+# http://investexcel.net/all-yahoo-finance-stock-tickers/
+
+
+# thread running functions? https://www.tutorialspoint.com/python/python_multithreading.htm
+# what if there're some new tickets on the market?
+# stock symbols update?                 s*\)[^)]*\(                  https://regex101.com/
+# plotting data
+# relationships
+# retrieve and presented processed data?
+
+#1 step 1 product: pure world market data
+#2 step 2 product: selecting of stocks: "up for 3 days"
