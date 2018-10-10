@@ -160,8 +160,9 @@ class StockObj:
             daylist = [item.get_text() for item in list(soup.find_all('td'))]
 
             #### ignore null tickets
-            if daylist[0].find(".HK") != -1:     # what if other foreign tickets? need to test daylist when dealing with other cases
-                break
+            if daylist[0].find(".HK") != -1 or daylist[0].find(".SZ") != -1 or daylist[0] is None:  # what if other foreign tickets? need to test daylist when dealing with other cases
+                return []
+
             #### delete Dividend notes
             indexes = [index for index in range(len(daylist)) if daylist[index].find("Dividend") != -1]
             print(indexes)
@@ -193,6 +194,7 @@ class StockObj:
                     #     index = index - 2
 
                     if index % 7 == 0:
+                        print([daylist[index], daylist[index+1], daylist[index+2], daylist[index+3], daylist[index+4], daylist[index+5], daylist[index+6]])
                         sd1 = stkday()
                         sd1.Date = datetime.datetime.strptime(daylist[index], '%b %d, %Y').strftime('%Y-%m-%d')
                         sd1.Open = daylist[index + 1]
@@ -233,7 +235,7 @@ class StockObj:
         daylist = [item.get_text() for item in list(soup.find_all('td'))]
 
         #### ignore null tickets
-        if daylist[0].find(".HK") != -1:  # what if other foreign tickets? need to test daylist when dealing with other cases
+        if daylist[0].find(".HK") != -1 or daylist[0].find(".SZ") != -1 or daylist[0] is None:  # what if other foreign tickets? need to test daylist when dealing with other cases
             return []
         #### delete Dividend notes
         indexes = [index for index in range(len(daylist)) if daylist[index].find("Dividend") != -1]
@@ -307,17 +309,18 @@ class StockObj:
                     }
                 # self.web_scrap()
 
-# with open('./hkstks') as f:
+# with open('./SZtks') as f:
 #     lines = f.read().splitlines()
 # print(lines)
 #
 # # there may be some stocks left before index 534
 # #856
-# for line in lines[1893:]:
+# for line in lines[2:]:
 #     print(str(line))
-#     abc = StockObj("abc", str(line))
+#     abc = StockObj("abc", str(line)+".SZ")
 #     abc.main()
-# abc = StockObj("abc", "1125.HK")
+
+# abc = StockObj("abc", "161911.SZ")
 # abc.main()
 # abc.main();
 
@@ -337,3 +340,5 @@ class StockObj:
 
 #1 step 1 product: pure world market data
 #2 step 2 product: selecting of stocks: "up for 3 days"
+#3 relation informations
+#4 prediction based on information: exp: "A and B are highly realated, A is known and has been up for 5 days, 'what are those Bs and has just been up for 3 days' or 'What are those Bs that's in fifferent time zone'"
