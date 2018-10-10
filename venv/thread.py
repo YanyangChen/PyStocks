@@ -71,4 +71,7 @@ def thread_run(start, end):
 # thread2.start()
 # thread3.start()
 # thread4.start()
-thread_run(765, 1000)
+# thread_run(0, int(765/3))
+thread_run(int(765/3)+1, int(765/3)*2)
+# thread_run(int(765/3)*2+1, 765)
+# thread_run(765, 1000)

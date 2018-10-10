@@ -40,6 +40,41 @@ class StockObj:
         for row in rows:
             print(row)
 
+    def check_existence(self, conn):
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM STOCKS where idx ="+"'"+str(self.stock)+"'" )
+
+        num = cur.fetchall()
+        # print(num[0][0])
+        if num[0][0] >= 1:
+            return True
+        else:
+            return False
+
+    #http://www.sqlitetutorial.net/sqlite-python/sqlite-python-select/
+    def check_today_exist(self, conn):
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM STOCKS where idx ="+"'"+str(self.stock)+"'" + "and stkdate ="+"'"+ datetime.datetime.now().strftime('%Y-%m-%d') +"'" )
+
+        num = cur.fetchall()
+        # print(num[0][0])
+        if num[0][0] >= 1:
+            return True # do nothing
+        else:
+            return False # do download data
+
+
+
 
     def select_task_by_priority(self, conn, priority):
         """
@@ -289,26 +324,56 @@ class StockObj:
             # print("1. Query task by priority:")
             # select_task_by_priority(conn, 1)
             # stk_r_list = self.web_scrap()
-            stk_r_list = self.scrab2years_from_2016()
-            stk_r_list = list(set(stk_r_list))
-            print(len(stk_r_list))
+            test = self.check_existence(conn) #runs the follow only when the stock data does not exist
+            if test is False:
+                stk_r_list = self.scrab2years_from_2016()
+                stk_r_list = list(set(stk_r_list))
+                print(len(stk_r_list))
 
+                for stk in stk_r_list:
+                    try:
+                        stock_1 = (self.stock, stk.Date, stk.Open, stk.High, stk.Low, stk.Close, stk.AdjClose, stk.Volumn)
+                        self.create_stock(conn, stock_1)
+                    except sqlite3.IntegrityError:
+                        print("duplicate data")
+                    finally:
+                        print("2. Query all tasks")
+                        # self.select_all_tasks(conn)
 
-            for stk in stk_r_list:
-                try:
-                    stock_1 = (self.stock, stk.Date, stk.Open, stk.High, stk.Low, stk.Close, stk.AdjClose, stk.Volumn)
-                    self.create_stock(conn, stock_1)
-                except sqlite3.IntegrityError:
-                    print("duplicate data")
-                finally:
-                    print("2. Query all tasks")
-                    # self.select_all_tasks(conn)
+                        proxies = {
+                            'http': 'http://proxy1.edb.gov.hk:8080/',
+                        }
+                    # self.web_scrap()
 
-                    proxies = {
-                        'http': 'http://proxy1.edb.gov.hk:8080/',
-                    }
+    def update(self):
+        # database = "/Users/chenyanyang/tst.db"
+        database = "C:\\stks\\tst.db"
+        # create a database connection
+        conn = self.create_connection(database)
+        with conn:
+            # print("1. Query task by priority:")
+            # select_task_by_priority(conn, 1)
+            # stk_r_list = self.web_scrap()
+            test = self.check_today_exist(conn)  # runs the follow only when today's stock data does not exist
+            if test is False:
+                stk_r_list = self.update2today()
+                stk_r_list = list(set(stk_r_list))
+                print(len(stk_r_list))
+
+                for stk in stk_r_list:
+                    try:
+                        stock_1 = (self.stock, stk.Date, stk.Open, stk.High, stk.Low, stk.Close, stk.AdjClose, stk.Volumn)
+                        self.create_stock(conn, stock_1)
+                    except sqlite3.IntegrityError:
+                        print("duplicate data")
+                    finally:
+                        print("2. Query all tasks")
+                        # self.select_all_tasks(conn)
+
+                        proxies = {
+                            'http': 'http://proxy1.edb.gov.hk:8080/',
+                        }
                 # self.web_scrap()
-
 # with open('./SZtks') as f:
 #     lines = f.read().splitlines()
 # print(lines)
@@ -339,6 +404,7 @@ class StockObj:
 # retrieve and presented processed data?
 
 #1 step 1 product: pure world market data
-#2 step 2 product: selecting of stocks: "up for 3 days"
-#3 relation informations
-#4 prediction based on information: exp: "A and B are highly realated, A is known and has been up for 5 days, 'what are those Bs and has just been up for 3 days' or 'What are those Bs that's in fifferent time zone'"
+#2 step 2 product: selecting of stocks: "up for 3 days" "month average accelerating"
+#3 step 3 relation informations
+#4 step 4 prediction based on information: exp: "A and B are highly realated, A is known and has been up for 5 days,
+# 'what are those Bs and has just been up for 3 days' or 'What are those Bs that's in different time zone'"

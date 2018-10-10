@@ -1,0 +1,11 @@
+
+# GET ALL INSTALLED SZ STOCK SYMBOLS
+select count(distinct(idx)) from stocks where idx like '%.SZ' order by idx desc;
+
+# GET ALL STOCK SYMBOLS THAT GOES UP CONTINUESLY FOR 3 DAYS
+
+select idx stkdate as d1 close as c1 from stocks where stkdate = '2018-10-05' as t1;
+select idx stkdate as d2 close as c2 from stocks where stkdate = '2018-10-08' as t2;
+select idx c2 from t1 inner join t2 on t1.idx = t2.idx and t2.close > t1.close as ta;
+select idx stkdate as d3 close as c3 from stocks where stkdate = '2018-10-09' as t3;
+select idx c3 from ta inner join t3 on ta.idx = t2.idx and t3.close > ta.c2
