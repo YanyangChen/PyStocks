@@ -420,6 +420,7 @@ class StockObj:
 # relationships
 # retrieve and presented processed data?
 
+############=====================Business==========================================
 # *1 batch update daily data on godaddy server
 # *2 business model 1 : sell stock market data online
 # *3 business model 2 : show data and plots on website
@@ -427,8 +428,9 @@ class StockObj:
 # *5 business model 4 : sell reports or post online, let customers order those reports
 # *6 business model 5 : open up a website for general report download, and different web app function for user to input for their generic analysis
 
+############=====================Ideas==========================================
 #1 step 1 product: pure world market data "in the name of sharing experimental simulation data, not real market data, with warnings"
-#2 step 2 product: selecting of stocks: "up for 3 days" "month average accelerating"
+#2 step 2 product: selecting of stocks: "up for 3 days" "month average accelerating" "growth rate accelerating"
 #3 step 3 relation informations
 #4 step 4 prediction based on information: exp: "A and B are highly realated, A is known and has been up for 5 days,
 # 'what are those Bs and has just been up for 3 days' or 'What are those Bs that's in different time zone'"
@@ -439,3 +441,10 @@ class StockObj:
 #9 step 9 Build up input combination functions
 #10 simulate pprediction validation
 #11 news title scraping
+#12 Base on data, find out which company is the industry lead in a certain market(store industry stock lists)
+#13 Find out how each type of market and company reacts based on global issues.
+#14 In a certain industry, how each of the companies react, like "How HK companies' stock price compete on real estate"
+
+############=====================Todos==========================================
+#1 make a function that prints out 5 day stock price going up
+#2 make a function that prints out monthly average stock price going up in a year
