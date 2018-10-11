@@ -2,6 +2,10 @@
 # GET ALL INSTALLED SZ STOCK SYMBOLS
 select count(distinct(idx)) from stocks where idx like '%.SZ' order by idx desc;
 
+# GET ALL INSTALLED US STOCK SYMBOLS
+
+select count(distinct(idx)) from stocks where not (idx like '%.SZ' or idx like '%.SS' or idx like '%.HK') order by idx desc;
+
 # GET ALL STOCK SYMBOLS THAT GOES UP CONTINUESLY FOR 3 DAYS
 
 select idx stkdate as d1 close as c1 from stocks where stkdate = '2018-10-05' as t1;

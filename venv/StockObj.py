@@ -6,6 +6,12 @@ from sqlite3 import Error
 from stkday import stkday
 
 # http://www.sqlitetutorial.net/sqlite-python/sqlite-python-select/
+
+
+def hasNumbers(inputString):
+    return any(char.isdigit() for char in inputString)
+
+
 class StockObj:
     def __init__(self, name, stock):
         self.name = name
@@ -196,7 +202,8 @@ class StockObj:
 
             #### ignore null tickets
             try:
-                if daylist[0].find(".HK") != -1 or daylist[0].find(".SZ") != -1 or daylist[0].find(".SS") != -1 or daylist[0] is None:  # what if other foreign tickets? need to test daylist when dealing with other cases
+                if daylist[0].find(".HK") != -1 or daylist[0].find(".SZ") != -1 or daylist[0].find(".SS") != -1 or daylist[0].find("2") == -1 or hasNumbers(daylist[0]) is False or daylist[0] is None:
+                    # what if other foreign tickets? need to test daylist when dealing with other cases
                     return []
 
                 #### delete Dividend notes
@@ -275,7 +282,9 @@ class StockObj:
 
         #### ignore null tickets
         try:
-            if daylist[0].find(".HK") != -1 or daylist[0].find(".SZ") != -1  or daylist[0].find(".SS") != -1 or daylist[0] is None:  # what if other foreign tickets? need to test daylist when dealing with other cases
+            if daylist[0].find(".HK") != -1 or daylist[0].find(".SZ") != -1 or daylist[0].find(".SS") != -1 or daylist[0].find("2") == -1 or hasNumbers(daylist[0]) is False or daylist[0] is None:
+                # what if other foreign tickets? need to test daylist when dealing with other cases
+                # what if other foreign tickets? need to test daylist when dealing with other cases
                 return []
             #### delete Dividend notes
             indexes = [index for index in range(len(daylist)) if daylist[index].find("Dividend") != -1]
@@ -428,3 +437,5 @@ class StockObj:
 #7 step 7 list all historical economic issues and find their relation with stock indexes, or bond, real estate or other financial product indexes
 #8 step 8 Apply the same idea to different world trade datas or production datas
 #9 step 9 Build up input combination functions
+#10 simulate pprediction validation
+#11 news title scraping

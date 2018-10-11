@@ -20,6 +20,20 @@ class myssThread (threading.Thread):
         run_ss(self.period1, self.period2)
         print("Exiting " + self.name)
 
+class myusThread (threading.Thread):
+
+    def __init__(self, period1, period2):
+        threading.Thread.__init__(self)
+        # self.threadID = threadID
+        # self.name = name
+        # self.counter = counter
+        self.period1 = period1
+        self.period2 = period2
+
+    def run(self):
+        print("Starting " + self.name)
+        run_us(self.period1, self.period2)
+        print("Exiting " + self.name)
 
 class myThread (threading.Thread):
 
@@ -67,6 +81,14 @@ def run_ss(period1, period2):
         abc.main()
 
 
+def run_us(period1, period2):
+    # there may be some stocks left before index 534
+    for line in lines[period1:period2]:
+        print("threads running ---------------" + str(line) + ".US")
+        abc = StockObj("abc", str(line))
+        abc.main()
+
+
 def thread_run(start, end):
     length = int(end - start)
     portion = int(length/4)
@@ -93,6 +115,42 @@ def ssthread_run(start, end):
     thread2.start()
     thread3.start()
     thread4.start()
+
+
+def usthread_run(start, end):
+    length = int(end - start)
+    portion = int(length/4)
+    thread1 = myusThread(int(start), int(start)+portion)
+    thread2 = myusThread(int(start)+portion + 1, int(start) + portion*2)
+    thread3 = myusThread(int(start) + portion*2 + 1, int(start) + portion*3)
+    thread4 = myusThread(int(start) + portion*3 + 1, int(end))
+
+    thread1.start()
+    thread2.start()
+    thread3.start()
+    thread4.start()
+
+
+def us8thread_run(start, end):
+    length = int(end - start)
+    portion = int(length/8)
+    thread1 = myusThread(int(start), int(start)+portion)
+    thread2 = myusThread(int(start)+portion + 1, int(start) + portion*2)
+    thread3 = myusThread(int(start) + portion*2 + 1, int(start) + portion*3)
+    thread4 = myusThread(int(start) + portion*3 + 1, int(start) + portion*4)
+    thread5 = myusThread(int(start) + portion*4 + 1, int(start) + portion*5)
+    thread6 = myusThread(int(start) + portion*5 + 1, int(start) + portion*6)
+    thread7 = myusThread(int(start) + portion*6 + 1, int(start) + portion*7)
+    thread8 = myusThread(int(start) + portion * 7 + 1, int(end))
+
+    thread1.start()
+    thread2.start()
+    thread3.start()
+    thread4.start()
+    thread5.start()
+    thread6.start()
+    thread7.start()
+    thread8.start()
 # thread1 = myThread(0, int(len(lines) / 4))
 # thread2 = myThread(int(len(lines) / 4) + 1, int(len(lines) / 4) * 2)
 # thread3 = myThread(int(len(lines) / 4) * 2 + 1, int(len(lines) / 4) * 3)
@@ -113,9 +171,10 @@ def ssthread_run(start, end):
 # thread_run(2001, 2500)
 # thread_run(2501, 3000)
 
-with open('./SZtks') as f:
+# with open('./SStks') as f:
+#     lines = f.read().splitlines()
+# ssthread_run(1, 1971)
+
+with open('./UStks') as f:
     lines = f.read().splitlines()
-# print(len(lines)/4*2)
-# for x in range(1, len(lines), 10):
-#     ssthread_run(int(len(lines)/10)*(x-1), int(len(lines)/10*x))
-ssthread_run(1, 1971)
+us8thread_run(1, len(lines))
