@@ -79,7 +79,7 @@ class StockObj:
         else:
             return False # do download data
 
-    def get_5_down(self, conn):
+    def get_5_up(self, conn):
         """
         Query all rows in the tasks table
         :param conn: the Connection object
@@ -95,10 +95,31 @@ class StockObj:
         #     for v in t:
         #         print(v)
 
-        for t in num:
-            print(t[0])
+        indlist=[]
 
-        print(num)
+        for t in num:
+            # print(t[0])
+            indlist.append(t[0])
+        # print(indlist)
+
+        for index in reversed(range(len(indlist))):
+            if indlist[index] > indlist[index-1]:
+                indlist[index] = 1
+            else:
+                indlist[index] = 0
+        # print(indlist)
+
+        if 4-sum(indlist[2:]) == 0:
+            # print("True")
+            return True
+        else:
+            # print("False")
+            return False
+
+
+
+
+        # print(num)
         # if num[0][0] >= 1:
         #     return True # do nothing
         # else:
@@ -427,9 +448,8 @@ class StockObj:
 #     abc = StockObj("abc", str(line)+".SZ")
 #     abc.main()
 
-abc = StockObj("abc", "0700.HK")
-conn = abc.create_connection("/Users/chenyanyang/tst.db")
-abc.get_5(conn)
+
+
 # abc.main();
 
 # List website:
