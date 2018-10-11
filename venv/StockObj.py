@@ -79,6 +79,31 @@ class StockObj:
         else:
             return False # do download data
 
+    def get_5_down(self, conn):
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        daysbefore = datetime.datetime.now()-datetime.timedelta(8)
+        cur = conn.cursor()
+        cur.execute("SELECT close, stkdate FROM STOCKS where idx = "+"'"+self.stock+"'"+"and stkdate between "+"'"+ daysbefore.strftime('%Y-%m-%d') +"'" + "and"+ "'"+ datetime.datetime.now().strftime('%Y-%m-%d') +"'" )
+
+        num = cur.fetchall()
+
+        # for t in num:
+        #     for v in t:
+        #         print(v)
+
+        for t in num:
+            print(t[0])
+
+        print(num)
+        # if num[0][0] >= 1:
+        #     return True # do nothing
+        # else:
+        #     return False # do download data
+
 
 
 
@@ -363,8 +388,8 @@ class StockObj:
                     # self.web_scrap()
 
     def update(self):
-        # database = "/Users/chenyanyang/tst.db"
-        database = "C:\\stks\\tst.db"
+        database = "/Users/chenyanyang/tst.db"
+        # database = "C:\\stks\\tst.db"
         # create a database connection
         conn = self.create_connection(database)
         with conn:
@@ -402,8 +427,9 @@ class StockObj:
 #     abc = StockObj("abc", str(line)+".SZ")
 #     abc.main()
 
-# abc = StockObj("abc", "161911.SZ")
-# abc.main()
+abc = StockObj("abc", "0700.HK")
+conn = abc.create_connection("/Users/chenyanyang/tst.db")
+abc.get_5(conn)
 # abc.main();
 
 # List website:
