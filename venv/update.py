@@ -6,7 +6,7 @@ with open('./tks/HKtks') as f:
 for line in lines:
     abc = StockObj("abc", str(line))
     # conn = abc.create_connection("/Users/chenyanyang/tst.db")
-    conn = abc.create_connection("C:\\stks\\tst.db")
+    conn = abc.create_connection("D:\\stks\\tst.db")
     abc.update()
 
 
@@ -16,7 +16,7 @@ with open('./tks/SZtks') as f:
 for line in lines:
     abc = StockObj("abc", str(line) + ".SZ")
     # conn = abc.create_connection("/Users/chenyanyang/tst.db")
-    conn = abc.create_connection("C:\\stks\\tst.db")
+    conn = abc.create_connection("D:\\stks\\tst.db")
     abc.update()
 
 with open('./tks/SStks') as f:
@@ -25,5 +25,5 @@ with open('./tks/SStks') as f:
 for line in lines:
     abc = StockObj("abc", str(line) + ".SS")
     # conn = abc.create_connection("/Users/chenyanyang/tst.db")
-    conn = abc.create_connection("C:\\stks\\tst.db")
+    conn = abc.create_connection("D:\\stks\\tst.db")
     abc.update()

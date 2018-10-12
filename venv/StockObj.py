@@ -87,7 +87,8 @@ class StockObj:
         :return:
         """
         cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM STOCKS where idx ="+"'"+str(self.stock)+"'" + "and stkdate ="+"'"+ (datetime.datetime.now() - datetime.timedelta(1)).strftime('%Y-%m-%d') +"'" )
+        # cur.execute("SELECT COUNT(*) FROM STOCKS where idx ="+"'"+str(self.stock)+"'" + "and stkdate ="+"'"+ (datetime.datetime.now() - datetime.timedelta(1)).strftime('%Y-%m-%d') +"'" )
+        cur.execute("SELECT COUNT(*) FROM STOCKS where idx ="+"'"+str(self.stock)+"'" + "and stkdate ="+"'"+ (datetime.datetime.now().strftime('%Y-%m-%d')  +"'" ))
 
         num = cur.fetchall()
         # print(num[0][0])
@@ -147,7 +148,7 @@ class StockObj:
         :param conn: the Connection object
         :return:
         """
-        daysbefore = datetime.datetime.now() - datetime.timedelta(8) # this int should be updated when 'stock update' function is finished
+        daysbefore = datetime.datetime.now() - datetime.timedelta(int(f_days) + 1) # this int should be updated when 'stock update' function is finished
         cur = conn.cursor()
         cur.execute(
             "SELECT close, stkdate FROM STOCKS where idx = " + "'" + self.stock + "'" + "and stkdate between " + "'" + daysbefore.strftime(
@@ -376,7 +377,7 @@ class StockObj:
         dif = (datetime.datetime.now() - datetime.datetime.strptime(flag_day, '%Y-%m-%d')).days
         dif_late_flag = (datetime.datetime.strptime(late_day, '%Y-%m-%d') - datetime.datetime.strptime(flag_day, '%Y-%m-%d')).days
         page = requests.get(
-            "https://finance.yahoo.com/quote/" + self.stock + "/history?period1=" + str(flag_day_sec + 3600 * 24 * dif_late_flag) + "&period2=" + str(flag_day_sec + 3600 * 24 * dif) + "&interval=1d&filter=history&frequency=1d")
+            "https://finance.yahoo.com/quote/" + self.stock + "/history?period1=" + str(flag_day_sec + 3600 * 24 * dif_late_flag) + "&period2=" + str(flag_day_sec + 3600 * 24 * (dif + 1)) + "&interval=1d&filter=history&frequency=1d")
 
         soup = BeautifulSoup(page.content, 'html.parser')
         # print(soup.prettify())
@@ -445,7 +446,7 @@ class StockObj:
 
     def main(self):
         # database = "/Users/chenyanyang/tst.db"
-        database = "C:\\stks\\tst.db"
+        database = "D:\\stks\\tst.db"
         # create a database connection
         conn = self.create_connection(database)
         with conn:
@@ -475,7 +476,7 @@ class StockObj:
 
     def update(self):
         # database = "/Users/chenyanyang/tst.db"
-        database = "C:\\stks\\tst.db"
+        database = "D:\\stks\\tst.db"
         # create a database connection
         conn = self.create_connection(database)
         with conn:
