@@ -5,6 +5,8 @@ with open('../hkstk') as f:
 
 for line in lines:
     abc = StockObj("abc", str(line))
-    conn = abc.create_connection("/Users/chenyanyang/tst.db")
-    if abc.get_5_up(conn) is True:
+    # conn = abc.create_connection("/Users/chenyanyang/tst.db")
+    conn = abc.create_connection("C:\\stks\\tst.db")
+
+    if abc.get_1_up(conn) is True:
         print(str(abc.stock))

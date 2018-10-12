@@ -62,6 +62,23 @@ class StockObj:
         else:
             return False
 
+    def check_latest(self, conn):
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        cur = conn.cursor()
+        cur.execute("SELECT max(stkdate) FROM STOCKS where idx ="+"'"+str(self.stock)+"'" )
+
+        num = cur.fetchall()
+        return str(num[0][0])
+        # print(num[0][0])
+        # if num[0][0] >= 1:
+        #     return True
+        # else:
+        #     return False
+
     #http://www.sqlitetutorial.net/sqlite-python/sqlite-python-select/
     def check_today_exist(self, conn):
         """
@@ -70,14 +87,22 @@ class StockObj:
         :return:
         """
         cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM STOCKS where idx ="+"'"+str(self.stock)+"'" + "and stkdate ="+"'"+ datetime.datetime.now().strftime('%Y-%m-%d') +"'" )
+        cur.execute("SELECT COUNT(*) FROM STOCKS where idx ="+"'"+str(self.stock)+"'" + "and stkdate ="+"'"+ (datetime.datetime.now() - datetime.timedelta(1)).strftime('%Y-%m-%d') +"'" )
 
         num = cur.fetchall()
         # print(num[0][0])
-        if num[0][0] >= 1:
+        if num[0][0] >= 1: # if the stock in today's record existed, it will do nothing
+            # print(num[0][0])
+            print(str(self.stock) + "updated")
             return True # do nothing
         else:
-            return False # do download data
+            if self.check_existence(conn) is True: # the stock exist in the DB
+                print(num[0][0])
+                print(str(self.stock) + "needs update")
+                return False # do download data
+            else:
+                print("No record")  # the stock does not exist in the DB
+                return True     # So the next process won't continue
 
     def get_5_up(self, conn):
         """
@@ -109,14 +134,51 @@ class StockObj:
                 indlist[index] = 0
         # print(indlist)
 
-        if 4-sum(indlist[2:]) == 0:
+        if 4-sum(indlist[1:]) == 0:
             # print("True")
             return True
         else:
             # print("False")
             return False
 
+    def get_1_up(self, conn):
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        daysbefore = datetime.datetime.now() - datetime.timedelta(5) # this int should be updated when 'stock update' function is finished
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT close, stkdate FROM STOCKS where idx = " + "'" + self.stock + "'" + "and stkdate between " + "'" + daysbefore.strftime(
+                '%Y-%m-%d') + "'" + "and" + "'" + datetime.datetime.now().strftime('%Y-%m-%d') + "'")
 
+        num = cur.fetchall()
+
+        # for t in num:
+        #     for v in t:
+        #         print(v)
+
+        indlist = []
+        # print(num)
+        for t in num:
+            # print(t[0])
+            indlist.append(t[0])
+        # print(indlist)
+
+        for index in reversed(range(len(indlist))):
+            if indlist[index] > indlist[index - 1]:
+                indlist[index] = 1
+            else:
+                indlist[index] = 0
+        # print(indlist)
+
+        if 1 - sum(indlist[1:]) == 0:
+            # print("True")
+            return True
+        else:
+            # print("False")
+            return False
 
 
         # print(num)
@@ -248,7 +310,7 @@ class StockObj:
 
             #### ignore null tickets
             try:
-                if daylist[0].find(".HK") != -1 or daylist[0].find(".SZ") != -1 or daylist[0].find(".SS") != -1 or daylist[0].find("2") == -1 or hasNumbers(daylist[0]) is False or daylist[0] is None:
+                if daylist[0].find(".HK") != -1 or daylist[0].find(".SZ") != -1 or daylist[0].find(".") != -1 or daylist[0].find(".SS") != -1 or daylist[0].find("2") == -1 or hasNumbers(daylist[0]) is False or daylist[0] is None:
                     # what if other foreign tickets? need to test daylist when dealing with other cases
                     return []
 
@@ -303,15 +365,17 @@ class StockObj:
 
         return twoYDaily_rec
 
-    def update2today(self):
+    def update2today(self, late_day):
 
         # flags should be able to update
         flag_day_sec = 1538323200   # 2018-10-01
         flag_day = "2018-10-01"
+        # late_day = slef.check_latest(conn)
         # flag_day_Date = datetime.datetime.strptime(flag_day, '%Y-%m-%d').strftime('%Y-%m-%d')
         dif = (datetime.datetime.now() - datetime.datetime.strptime(flag_day, '%Y-%m-%d')).days
+        dif_late_flag = (datetime.datetime.strptime(late_day, '%Y-%m-%d') - datetime.datetime.strptime(flag_day, '%Y-%m-%d')).days
         page = requests.get(
-            "https://finance.yahoo.com/quote/" + self.stock + "/history?period1=" + str(flag_day_sec + 3600 * 24) + "&period2=" + str(flag_day_sec + 3600 * 24 * dif) + "&interval=1d&filter=history&frequency=1d")
+            "https://finance.yahoo.com/quote/" + self.stock + "/history?period1=" + str(flag_day_sec + 3600 * 24 * dif_late_flag) + "&period2=" + str(flag_day_sec + 3600 * 24 * dif) + "&interval=1d&filter=history&frequency=1d")
 
         soup = BeautifulSoup(page.content, 'html.parser')
         # print(soup.prettify())
@@ -328,7 +392,7 @@ class StockObj:
 
         #### ignore null tickets
         try:
-            if daylist[0].find(".HK") != -1 or daylist[0].find(".SZ") != -1 or daylist[0].find(".SS") != -1 or daylist[0].find("2") == -1 or hasNumbers(daylist[0]) is False or daylist[0] is None:
+            if daylist[0].find(".HK") != -1 or daylist[0].find(".SZ") != -1 or daylist[0].find(".") != -1 or daylist[0].find(".SS") != -1 or daylist[0].find("2") == -1 or hasNumbers(daylist[0]) is False or daylist[0] is None:
                 # what if other foreign tickets? need to test daylist when dealing with other cases
                 # what if other foreign tickets? need to test daylist when dealing with other cases
                 return []
@@ -409,8 +473,8 @@ class StockObj:
                     # self.web_scrap()
 
     def update(self):
-        database = "/Users/chenyanyang/tst.db"
-        # database = "C:\\stks\\tst.db"
+        # database = "/Users/chenyanyang/tst.db"
+        database = "C:\\stks\\tst.db"
         # create a database connection
         conn = self.create_connection(database)
         with conn:
@@ -419,7 +483,8 @@ class StockObj:
             # stk_r_list = self.web_scrap()
             test = self.check_today_exist(conn)  # runs the follow only when today's stock data does not exist
             if test is False:
-                stk_r_list = self.update2today()
+                lateest_day = self.check_latest(conn)
+                stk_r_list = self.update2today(lateest_day)
                 stk_r_list = list(set(stk_r_list))
                 print(len(stk_r_list))
 
@@ -437,15 +502,15 @@ class StockObj:
                             'http': 'http://proxy1.edb.gov.hk:8080/',
                         }
                 # self.web_scrap()
-# with open('./SZtks') as f:
+# with open('./UStks') as f:
 #     lines = f.read().splitlines()
 # print(lines)
-#
-# # there may be some stocks left before index 534
-# #856
-# for line in lines[2:]:
-#     print(str(line))
-#     abc = StockObj("abc", str(line)+".SZ")
+# #
+# # # there may be some stocks left before index 534
+# # #856
+# for line in lines:
+#     # print(str(line))
+#     abc = StockObj("abc", str(line))
 #     abc.main()
 
 

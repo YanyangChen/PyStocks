@@ -175,6 +175,6 @@ def us8thread_run(start, end):
 #     lines = f.read().splitlines()
 # ssthread_run(1, 1971)
 
-with open('./UStks') as f:
+with open('./tks/USAtks') as f:
     lines = f.read().splitlines()
-us8thread_run(1, len(lines))
+usthread_run(1, int(len(lines)/2))
