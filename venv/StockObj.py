@@ -141,13 +141,13 @@ class StockObj:
             # print("False")
             return False
 
-    def get_1_up(self, conn):
+    def get_up(self, conn, f_days):
         """
         Query all rows in the tasks table
         :param conn: the Connection object
         :return:
         """
-        daysbefore = datetime.datetime.now() - datetime.timedelta(5) # this int should be updated when 'stock update' function is finished
+        daysbefore = datetime.datetime.now() - datetime.timedelta(8) # this int should be updated when 'stock update' function is finished
         cur = conn.cursor()
         cur.execute(
             "SELECT close, stkdate FROM STOCKS where idx = " + "'" + self.stock + "'" + "and stkdate between " + "'" + daysbefore.strftime(
@@ -171,10 +171,11 @@ class StockObj:
                 indlist[index] = 1
             else:
                 indlist[index] = 0
-        # print(indlist)
 
-        if 1 - sum(indlist[1:]) == 0:
+
+        if int(f_days) - sum(indlist[-int(f_days):]) == 0:
             # print("True")
+            print(indlist)
             return True
         else:
             # print("False")

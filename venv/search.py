@@ -8,5 +8,5 @@ for line in lines:
     # conn = abc.create_connection("/Users/chenyanyang/tst.db")
     conn = abc.create_connection("C:\\stks\\tst.db")
 
-    if abc.get_1_up(conn) is True:
+    if abc.get_up(conn, 2) is True:
         print(str(abc.stock))
