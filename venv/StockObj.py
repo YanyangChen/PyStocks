@@ -474,6 +474,36 @@ class StockObj:
                         }
                     # self.web_scrap()
 
+    def mainO(self):
+        # database = "/Users/chenyanyang/tst.db"
+        database = "D:\\stks\\otst.db"
+        # create a database connection
+        conn = self.create_connection(database)
+        with conn:
+            # print("1. Query task by priority:")
+            # select_task_by_priority(conn, 1)
+            # stk_r_list = self.web_scrap()
+            test = self.check_existence(conn) #runs the follow only when the stock data does not exist
+            if test is False:
+                stk_r_list = self.scrab2years_from_2016()
+                stk_r_list = list(set(stk_r_list))
+                print(len(stk_r_list))
+
+                for stk in stk_r_list:
+                    try:
+                        stock_1 = (self.stock + ".O", stk.Date, stk.Open, stk.High, stk.Low, stk.Close, stk.AdjClose, stk.Volumn)
+                        self.create_stock(conn, stock_1)
+                    except sqlite3.IntegrityError:
+                        print("duplicate data")
+                    finally:
+                        print("2. Query all tasks")
+                        # self.select_all_tasks(conn)
+
+                        proxies = {
+                            'http': 'http://proxy1.edb.gov.hk:8080/',
+                        }
+                    # self.web_scrap()
+
     def update(self):
         # database = "/Users/chenyanyang/tst.db"
         database = "D:\\stks\\tst.db"
@@ -544,6 +574,7 @@ class StockObj:
 ############=====================Ideas==========================================
 #1 step 1 product: pure world market data "in the name of sharing experimental simulation data, not real market data, with warnings"
 #2 step 2 product: selecting of stocks: "up for 3 days" "month average accelerating" "growth rate accelerating"
+#15 In a day range, show the growth rate ranking list.
 #3 step 3 relation informations
 #4 step 4 prediction based on information: exp: "A and B are highly realated, A is known and has been up for 5 days,
 # 'what are those Bs and has just been up for 3 days' or 'What are those Bs that's in different time zone'"

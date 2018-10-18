@@ -35,6 +35,23 @@ class myusThread (threading.Thread):
         run_us(self.period1, self.period2)
         print("Exiting " + self.name)
 
+
+class myoThread (threading.Thread):
+
+    def __init__(self, period1, period2):
+        threading.Thread.__init__(self)
+        # self.threadID = threadID
+        # self.name = name
+        # self.counter = counter
+        self.period1 = period1
+        self.period2 = period2
+
+    def run(self):
+        print("Starting " + self.name)
+        run_o(self.period1, self.period2)
+        print("Exiting " + self.name)
+
+
 class myThread (threading.Thread):
 
     def __init__(self, period1, period2):
@@ -88,6 +105,13 @@ def run_us(period1, period2):
         abc = StockObj("abc", str(line))
         abc.main()
 
+
+def run_o(period1, period2):
+    # there may be some stocks left before index 534
+    for line in lines[period1:period2]:
+        print("threads running ---------------" + str(line) + ".Others")
+        abc = StockObj("abc", str(line))
+        abc.mainO()
 
 def thread_run(start, end):
     length = int(end - start)
@@ -143,6 +167,18 @@ def us3thread_run(start, end):
     thread3.start()
 
 
+def o3thread_run(start, end):
+    length = int(end - start)
+    portion = int(length/3)
+    thread1 = myoThread(int(start), int(start)+portion)
+    thread2 = myoThread(int(start)+portion + 1, int(start) + portion*2)
+    thread3 = myoThread(int(start) + portion*2 + 1, int(end))
+
+    thread1.start()
+    thread2.start()
+    thread3.start()
+
+
 def us8thread_run(start, end):
     length = int(end - start)
     portion = int(length/8)
@@ -188,6 +224,6 @@ def us8thread_run(start, end):
 # ssthread_run(1, 1971)
 
 
-with open('./tks/USAtks') as f:
+with open('./tks/Othtks') as f:
     lines = f.read().splitlines()
-us3thread_run(int(len(lines)/2)+1, int(len(lines)))
+o3thread_run(0, int(len(lines)))

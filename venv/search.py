@@ -42,4 +42,4 @@ def search_up_days(days):
     print(str(ss) + " ss stocks met requirements")
 
 
-search_up_days(1)
+search_up_days(3)
