@@ -148,7 +148,9 @@ class StockObj:
         :param conn: the Connection object
         :return:
         """
+        # dayset = datetime.datetime.now() - datetime.timedelta(int(3))
         daysbefore = datetime.datetime.now() - datetime.timedelta(int(f_days) + 1) # this int should be updated when 'stock update' function is finished
+        # daysbefore = dayset - datetime.timedelta(int(f_days) + 1)  # this int should be updated when 'stock update' function is finished
         cur = conn.cursor()
         cur.execute(
             "SELECT close, stkdate FROM STOCKS where idx = " + "'" + self.stock + "'" + "and stkdate between " + "'" + daysbefore.strftime(
@@ -164,17 +166,76 @@ class StockObj:
         # print(num)
         for t in num:
             # print(t[0])
-            indlist.append(t[0])
+            indlist.append(float(str(t[0]).replace(",", "").replace("-", "0")))
+            # indlist.append(t[0])
         # print(indlist)
 
         for index in reversed(range(len(indlist))):
-            if indlist[index] > indlist[index - 1]:
+            # print("True")
+            if float(indlist[index]) > float(indlist[index - 1]):
                 indlist[index] = 1
             else:
                 indlist[index] = 0
 
 
         if int(f_days) - sum(indlist[-int(f_days):]) == 0:
+            # print("True")
+            print(indlist)
+            return True
+        else:
+            # print("False")
+            return False
+
+
+        # print(num)
+        # if num[0][0] >= 1:
+        #     return True # do nothing
+        # else:
+        #     return False # do download data
+
+
+    def get_upusa(self, conn, f_days):
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        dayset = datetime.datetime.now() - datetime.timedelta(int(1))
+        # daysbefore = datetime.datetime.now() - datetime.timedelta(int(f_days) + 1) # this int should be updated when 'stock update' function is finished
+        daysbefore = dayset - datetime.timedelta(int(f_days))  # this int should be updated when 'stock update' function is finished
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT close, stkdate FROM STOCKS where idx = " + "'" + self.stock + "'" + "and stkdate between " + "'" + daysbefore.strftime(
+                '%Y-%m-%d') + "'" + "and" + "'" + dayset.strftime('%Y-%m-%d') + "'")
+
+        num = cur.fetchall()
+
+        # for t in num:
+        #     for v in t:
+        #         print(v)
+
+        indlist = []
+        # print(num)
+        for t in num:
+            # print(t[0])
+            indlist.append(float(str(t[0]).replace(",", "").replace("-", "0")))
+        # print(indlist)
+
+        for index in reversed(range(len(indlist))):
+            # print("True")
+            if float(indlist[index]) > float(indlist[index - 1]):
+                indlist[index] = 1
+            else:
+                indlist[index] = 0
+
+        weekends = 2 * (divmod(f_days, 7)[0])
+        work_days = f_days - weekends
+        if f_days - 7 * (divmod(f_days, 7)[0]) == 6:
+            work_days = work_days - 1
+
+
+
+        if work_days  - sum(indlist) == 0:
             # print("True")
             print(indlist)
             return True
