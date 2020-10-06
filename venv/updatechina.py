@@ -1,13 +1,22 @@
 from StockObj import StockObj
 
-with open('./tks/HKtks') as f:
-    lines = f.read().splitlines()
+# with open('./tks/HKtks') as f:
+    # lines = f.read().splitlines()
 
-for line in lines:
-    abc = StockObj("abc", str(line))
-    # conn = abc.create_connection("/Users/chenyanyang/tst.db")
-    conn = abc.create_connection("D:\\stks\\tst.db")
-    abc.update()
+# for line in lines:
+    # abc = StockObj("abc", str(line))
+    #conn = abc.create_connection("/Users/chenyanyang/tst.db")
+    # conn = abc.create_connection("D:\\stks\\tst.db")
+    # abc.manual_update("2019-04-04")
+
+# with open('./tks/HKtks') as f:
+    # lines = f.read().splitlines()
+
+# for line in lines:
+    # abc = StockObj("abc", str(line))
+    #conn = abc.create_connection("/Users/chenyanyang/tst.db")
+    # conn = abc.create_connection("D:\\stks\\tst.db")
+    # abc.update()
 
 
 with open('./tks/SZtks') as f:
@@ -17,7 +26,7 @@ for line in lines:
     abc = StockObj("abc", str(line) + ".SZ")
     # conn = abc.create_connection("/Users/chenyanyang/tst.db")
     conn = abc.create_connection("D:\\stks\\tst.db")
-    abc.update()
+    abc.manual_update("2019-04-12")
 
 with open('./tks/SStks') as f:
     lines = f.read().splitlines()
@@ -26,4 +35,4 @@ for line in lines:
     abc = StockObj("abc", str(line) + ".SS")
     # conn = abc.create_connection("/Users/chenyanyang/tst.db")
     conn = abc.create_connection("D:\\stks\\tst.db")
-    abc.update()
+    abc.manual_update("2019-04-12")

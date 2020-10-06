@@ -8,25 +8,25 @@ from StockObj import StockObj
 #     # conn = abc.create_connection("/Users/chenyanyang/tst.db")
 #     conn = abc.create_connection("D:\\stks\\tst.db")
 #     abc.update()
-#
-#
+
+
 # with open('./tks/SZtks') as f:
-#     lines = f.read().splitlines()
-#
+    # lines = f.read().splitlines()
+
 # for line in lines:
-#     abc = StockObj("abc", str(line) + ".SZ")
-#     # conn = abc.create_connection("/Users/chenyanyang/tst.db")
-#     conn = abc.create_connection("D:\\stks\\tst.db")
-#     abc.update()
-#
+    # abc = StockObj("abc", str(line) + ".SZ")
+    # conn = abc.create_connection("/Users/chenyanyang/tst.db")
+    # conn = abc.create_connection("D:\\stks\\tst.db")
+    # abc.update()
+
 # with open('./tks/SStks') as f:
-#     lines = f.read().splitlines()
-#
+    # lines = f.read().splitlines()
+
 # for line in lines:
-#     abc = StockObj("abc", str(line) + ".SS")
-#     # conn = abc.create_connection("/Users/chenyanyang/tst.db")
-#     conn = abc.create_connection("D:\\stks\\tst.db")
-#     abc.update()
+    # abc = StockObj("abc", str(line) + ".SS")
+    # conn = abc.create_connection("/Users/chenyanyang/tst.db")
+    # conn = abc.create_connection("D:\\stks\\tst.db")
+    # abc.update()
 
 with open('./tks/USAtks') as f:
     lines = f.read().splitlines()

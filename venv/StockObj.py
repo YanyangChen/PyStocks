@@ -111,6 +111,7 @@ class StockObj:
         :param conn: the Connection object
         :return:
         """
+
         daysbefore = datetime.datetime.now()-datetime.timedelta(8)
         cur = conn.cursor()
         cur.execute("SELECT close, stkdate FROM STOCKS where idx = "+"'"+self.stock+"'"+"and stkdate between "+"'"+ daysbefore.strftime('%Y-%m-%d') +"'" + "and"+ "'"+ datetime.datetime.now().strftime('%Y-%m-%d') +"'" )
@@ -142,19 +143,25 @@ class StockObj:
             # print("False")
             return False
 
-    def get_up(self, conn, f_days):
+    def get_up(self, conn, f_days, end_day):
         """
         Query all rows in the tasks table
         :param conn: the Connection object
         :return:
         """
+        #flag_day = "2018-10-01"
+        #datetime.datetime.strptime(flag_day, '%Y-%m-%d')).days
         # dayset = datetime.datetime.now() - datetime.timedelta(int(3))
-        daysbefore = datetime.datetime.now() - datetime.timedelta(int(f_days) + 1) # this int should be updated when 'stock update' function is finished
+        if end_day == "":
+            daysbefore = datetime.datetime.now() - datetime.timedelta(int(f_days) + 1) # this int should be updated when 'stock update' function is finished
+            end_day = datetime.datetime.now()
+        else:
+            daysbefore = datetime.datetime.strptime(end_day, '%Y-%m-%d') - datetime.timedelta(int(f_days) + 1)
         # daysbefore = dayset - datetime.timedelta(int(f_days) + 1)  # this int should be updated when 'stock update' function is finished
         cur = conn.cursor()
         cur.execute(
             "SELECT close, stkdate FROM STOCKS where idx = " + "'" + self.stock + "'" + "and stkdate between " + "'" + daysbefore.strftime(
-                '%Y-%m-%d') + "'" + "and" + "'" + datetime.datetime.now().strftime('%Y-%m-%d') + "'")
+                '%Y-%m-%d') + "'" + "and" + "'" + end_day + "'")
 
         num = cur.fetchall()
 
@@ -194,13 +201,238 @@ class StockObj:
         #     return False # do download data
 
 
+
+    def get_down(self, conn, f_days, end_day):
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        #flag_day = "2018-10-01"
+        #datetime.datetime.strptime(flag_day, '%Y-%m-%d')).days
+        # dayset = datetime.datetime.now() - datetime.timedelta(int(3))
+        if end_day == "":
+            daysbefore = datetime.datetime.now() - datetime.timedelta(int(f_days) + 1) # this int should be updated when 'stock update' function is finished
+            end_day = datetime.datetime.now()
+        else:
+            daysbefore = datetime.datetime.strptime(end_day, '%Y-%m-%d') - datetime.timedelta(int(f_days) + 1)
+        # daysbefore = dayset - datetime.timedelta(int(f_days) + 1)  # this int should be updated when 'stock update' function is finished
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT close, stkdate FROM STOCKS where idx = " + "'" + self.stock + "'" + "and stkdate between " + "'" + daysbefore.strftime(
+                '%Y-%m-%d') + "'" + "and" + "'" + end_day + "'")
+
+        num = cur.fetchall()
+
+        # for t in num:
+        #     for v in t:
+        #         print(v)
+
+        indlist = []
+        # print(num)
+        for t in num:
+            # print(t[0])
+            indlist.append(float(str(t[0]).replace(",", "").replace("-", "0")))
+            # indlist.append(t[0])
+        # print(indlist)
+
+        for index in reversed(range(len(indlist))):
+            # print("True")
+            if float(indlist[index]) < float(indlist[index - 1]):
+                indlist[index] = 1
+            else:
+                indlist[index] = 0
+
+
+        if int(f_days) - sum(indlist[-int(f_days):]) == 0:
+            # print("True")
+            print(indlist)
+            return True
+        else:
+            # print("False")
+            return False
+
+
+    def get_symtik(self, conn, delta_days, end_day):
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        #flag_day = "2018-10-01"
+        #datetime.datetime.strptime(flag_day, '%Y-%m-%d')).days
+        # dayset = datetime.datetime.now() - datetime.timedelta(int(3))
+        if end_day == "":
+            daysbefore = datetime.datetime.now() - datetime.timedelta(int(delta_days) + 1) # this int should be updated when 'stock update' function is finished
+            end_day = datetime.datetime.now()
+        else:
+            daysbefore = datetime.datetime.strptime(end_day, '%Y-%m-%d') - datetime.timedelta(int(delta_days))
+        # daysbefore = dayset - datetime.timedelta(int(delta_days) + 1)  # this int should be updated when 'stock update' function is finished
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT close, stkdate FROM STOCKS where idx = " + "'" + self.stock + "'" + "and stkdate between " + "'" + daysbefore.strftime(
+                '%Y-%m-%d') + "'" + "and" + "'" + end_day + "'")
+
+        num = cur.fetchall()
+
+        # for t in num:
+        #     for v in t:
+        #         print(v)
+
+        indlist = []
+        # print(num)
+        for t in num:
+            # print(t[0])
+            indlist.append(float(str(t[0]).replace(",", "").replace("-", "0")))
+            # indlist.append(t[0])
+        # print(indlist)
+
+        for index in reversed(range(len(indlist))):
+            # print("True")
+            if float(indlist[index]) > float(indlist[index - 1]):
+                indlist[index] = 1
+            else:
+                indlist[index] = 0
+
+
+        if int(delta_days-1) - sum(indlist[-(int(delta_days)+1):-1]) == int(delta_days-1) and (len(indlist) != 0):
+            # print("True")
+			
+            if (int(indlist[-1]) == 1) :
+                #print(int(delta_days-1))
+                #print(indlist[-int(delta_days+1):-1])
+                #print(indlist[-1])
+                print(indlist)
+                return True
+            else:
+                return False
+        else:
+            # print("False")
+            return False
+
+
+    def get_delta_price(self, conn, delta_days, end_day):
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        #flag_day = "2018-10-01"
+        #datetime.datetime.strptime(flag_day, '%Y-%m-%d')).days
+        # dayset = datetime.datetime.now() - datetime.timedelta(int(3))
+        if end_day == "":
+            daysbefore = datetime.datetime.now() - datetime.timedelta(int(delta_days) + 1) # this int should be updated when 'stock update' function is finished
+            end_day = datetime.datetime.now()
+        else:
+            daysbefore = datetime.datetime.strptime(end_day, '%Y-%m-%d') - datetime.timedelta(int(delta_days))
+        # daysbefore = dayset - datetime.timedelta(int(delta_days) + 1)  # this int should be updated when 'stock update' function is finished
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT close, stkdate FROM STOCKS where idx = " + "'" + self.stock + "'" + "and stkdate between " + "'" + daysbefore.strftime(
+                '%Y-%m-%d') + "'" + "and" + "'" + end_day + "'")
+
+        num = cur.fetchall()
+
+        # for t in num:
+        #     for v in t:
+        #         print(v)
+
+        indlist = []
+        # print(num)
+        for t in num:
+            # print(t[0])
+            indlist.append(float(str(t[0]).replace(",", "").replace("-", "0")))
+            # indlist.append(t[0])
+        # print(indlist)
+
+##        for index in reversed(range(len(indlist))):
+##            # print("True")
+##            if float(indlist[index]) > float(indlist[index - 1]):
+##                indlist[index] = 1
+##            else:
+##                indlist[index] = 0
+        delta_p = indlist[-1] - indlist[0]
+        ratio = delta_p / delta_days
+
+        return ratio
+
+
+##        if int(delta_days-1) - sum(indlist[-(int(delta_days)+1):-1]) == int(delta_days-1) and (len(indlist) != 0):
+##            # print("True")
+##			
+##            if (int(indlist[-1]) == 1) :
+##                #print(int(delta_days-1))
+##                #print(indlist[-int(delta_days+1):-1])
+##                #print(indlist[-1])
+##                print(indlist)
+##                return True
+##            else:
+##                return False
+##        else:
+##            # print("False")
+##            return False
+
+
+    def get_match(self, conn, f_days):
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        # dayset = datetime.datetime.now() - datetime.timedelta(int(3))
+        daysbefore = datetime.datetime.now() - datetime.timedelta(int(f_days) + 1) # this int should be updated when 'stock update' function is finished
+        # daysbefore = dayset - datetime.timedelta(int(f_days) + 1)  # this int should be updated when 'stock update' function is finished
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT close, stkdate FROM STOCKS where idx = " + "'" + self.stock + "'" + "and stkdate between " + "'" + daysbefore.strftime(
+                '%Y-%m-%d') + "'" + "and" + "'" + datetime.datetime.now().strftime('%Y-%m-%d') + "'")
+
+        num = cur.fetchall()
+
+        # for t in num:
+        #     for v in t:
+        #         print(v)
+
+        indlist = []
+        # print(num)
+        for t in num:
+            # print(t[0])
+            indlist.append(float(str(t[0]).replace(",", "").replace("-", "0")))
+            # indlist.append(t[0])
+        # print(indlist)
+
+        for index in reversed(range(len(indlist))):
+            # print("True")
+            if float(indlist[index]) < float(indlist[index - 1]):
+                indlist[index] = 1
+            else:
+                indlist[index] = 0
+
+        if int(f_days) - sum(indlist[-int(f_days):]) == 0:
+            # print("True")
+            print(indlist)
+            return True
+        else:
+            # print("False")
+            return False
+
+    #def get_days_average(self, conn, f_days):
+
+    #def get_week_average(self, conn, f_days):
+
+    #def plot_price(self, conn, f_days):
+
+    #def plot_volumn(self, conn, f_days):
+
+    #def plot_averages_and_price(self, conn, f_days):
+
     def get_upusa(self, conn, f_days):
         """
         Query all rows in the tasks table
         :param conn: the Connection object
         :return:
         """
-        dayset = datetime.datetime.now() - datetime.timedelta(int(1))
+        dayset = datetime.datetime.now() - datetime.timedelta(int(5))
         # daysbefore = datetime.datetime.now() - datetime.timedelta(int(f_days) + 1) # this int should be updated when 'stock update' function is finished
         daysbefore = dayset - datetime.timedelta(int(f_days))  # this int should be updated when 'stock update' function is finished
         cur = conn.cursor()
@@ -431,8 +663,8 @@ class StockObj:
     def update2today(self, late_day):
 
         # flags should be able to update
-        flag_day_sec = 1538323200   # 2018-10-01
-        flag_day = "2018-10-01"
+        flag_day_sec = 1546272000   # 2019-01-01
+        flag_day = "2019-01-01"
         # late_day = slef.check_latest(conn)
         # flag_day_Date = datetime.datetime.strptime(flag_day, '%Y-%m-%d').strftime('%Y-%m-%d')
         dif = (datetime.datetime.now() - datetime.datetime.strptime(flag_day, '%Y-%m-%d')).days
@@ -504,6 +736,8 @@ class StockObj:
         except IndexError:
             record_list = []
             return record_list
+
+
 
     def main(self):
         # database = "/Users/chenyanyang/tst.db"
@@ -593,6 +827,37 @@ class StockObj:
 
                         proxies = {
                             'http': 'http://proxy1.edb.gov.hk:8080/',
+                        }
+                        
+
+    def manual_update(self,lateest_day):
+        # database = "/Users/chenyanyang/tst.db"
+        database = "D:\\stks\\tst.db"
+        # create a database connection
+        conn = self.create_connection(database)
+        with conn:
+            # print("1. Query task by priority:")
+            # select_task_by_priority(conn, 1)
+            # stk_r_list = self.web_scrap()
+            test = self.check_today_exist(conn)  # runs the follow only when today's stock data does not exist
+            if test is False:
+                #lateest_day = self.check_latest(conn)
+                stk_r_list = self.update2today(lateest_day)
+                stk_r_list = list(set(stk_r_list))
+                print(len(stk_r_list))
+
+                for stk in stk_r_list:
+                    try:
+                        stock_1 = (self.stock, stk.Date, stk.Open, stk.High, stk.Low, stk.Close, stk.AdjClose, stk.Volumn)
+                        self.create_stock(conn, stock_1)
+                    except sqlite3.IntegrityError:
+                        print("duplicate data")
+                    finally:
+                        print("2. Query all tasks")
+                                                # self.select_all_tasks(conn)
+
+                        proxies = {
+                                'http': 'http://proxy1.edb.gov.hk:8080/',
                         }
                 # self.web_scrap()
 # with open('./UStks') as f:
