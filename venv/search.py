@@ -8,7 +8,7 @@ def search_up_days(days):
         for line in lines:
             abc = StockObj("abc", str(line))
             # conn = abc.create_connection("/Users/chenyanyang/tst.db")
-            conn = abc.create_connection("D:\\stks\\tst.db")
+            conn = abc.create_connection("/home/Aaron/PyStocks/venv/tst.db")
 
             if abc.get_up(conn, days) is True:
                 print(str(abc.stock))
@@ -21,7 +21,7 @@ def search_up_days(days):
         for line in lines:
             abc = StockObj("abc", str(line)+".SZ")
             # conn = abc.create_connection("/Users/chenyanyang/tst.db")
-            conn = abc.create_connection("D:\\stks\\tst.db")
+            conn = abc.create_connection("/home/Aaron/PyStocks/venv/tst.db")
 
             if abc.get_up(conn, days) is True:
                 print(str(abc.stock))
@@ -34,7 +34,7 @@ def search_up_days(days):
         for line in lines:
             abc = StockObj("abc", str(line)+".SS")
             # conn = abc.create_connection("/Users/chenyanyang/tst.db")
-            conn = abc.create_connection("D:\\stks\\tst.db")
+            conn = abc.create_connection("/home/Aaron/PyStocks/venv/tst.db")
 
             if abc.get_up(conn, days) is True:
                 print(str(abc.stock))
@@ -50,7 +50,7 @@ def search_up_days4USA(days):
     for line in lines:
         abc = StockObj("abc", str(line))
         # conn = abc.create_connection("/Users/chenyanyang/tst.db")
-        conn = abc.create_connection("D:\\stks\\tst.db")
+        conn = abc.create_connection("/home/Aaron/PyStocks/venv/tst.db")
 
         if abc.get_upusa(conn, days) is True:
             print(str(abc.stock))

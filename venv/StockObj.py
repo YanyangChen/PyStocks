@@ -88,7 +88,7 @@ class StockObj:
         """
         cur = conn.cursor()
         # cur.execute("SELECT COUNT(*) FROM STOCKS where idx ="+"'"+str(self.stock)+"'" + "and stkdate ="+"'"+ (datetime.datetime.now() - datetime.timedelta(1)).strftime('%Y-%m-%d') +"'" )
-        cur.execute("SELECT COUNT(*) FROM STOCKS where idx ="+"'"+str(self.stock)+"'" + "and stkdate ="+"'"+ (datetime.datetime.now().strftime('%Y-%m-%d')  +"'" ))
+        cur.execute("SELECT COUNT(*) FROM stocks where idx ="+"'"+str(self.stock)+"'" + "and stkdate ="+"'"+ (datetime.datetime.now().strftime('%Y-%m-%d')  +"'" ))
 
         num = cur.fetchall()
         # print(num[0][0])
@@ -205,7 +205,7 @@ class StockObj:
         daysbefore = dayset - datetime.timedelta(int(f_days))  # this int should be updated when 'stock update' function is finished
         cur = conn.cursor()
         cur.execute(
-            "SELECT close, stkdate FROM STOCKS where idx = " + "'" + self.stock + "'" + "and stkdate between " + "'" + daysbefore.strftime(
+            "SELECT close, stkdate FROM stocks where idx = " + "'" + self.stock + "'" + "and stkdate between " + "'" + daysbefore.strftime(
                 '%Y-%m-%d') + "'" + "and" + "'" + dayset.strftime('%Y-%m-%d') + "'")
 
         num = cur.fetchall()
@@ -428,14 +428,15 @@ class StockObj:
 
         return twoYDaily_rec
 
-    def update2today(self, late_day):
+    def update2(self, late_day, stop_day):
 
         # flags should be able to update
         flag_day_sec = 1538323200   # 2018-10-01
         flag_day = "2018-10-01"
         # late_day = slef.check_latest(conn)
         # flag_day_Date = datetime.datetime.strptime(flag_day, '%Y-%m-%d').strftime('%Y-%m-%d')
-        dif = (datetime.datetime.now() - datetime.datetime.strptime(flag_day, '%Y-%m-%d')).days
+        #dif = (datetime.datetime.now() - datetime.datetime.strptime(flag_day, '%Y-%m-%d')).days
+        dif = (datetime.datetime.strptime(stop_day, '%Y-%m-%d') - datetime.datetime.strptime(flag_day, '%Y-%m-%d')).days
         dif_late_flag = (datetime.datetime.strptime(late_day, '%Y-%m-%d') - datetime.datetime.strptime(flag_day, '%Y-%m-%d')).days
         page = requests.get(
             "https://finance.yahoo.com/quote/" + self.stock + "/history?period1=" + str(flag_day_sec + 3600 * 24 * dif_late_flag) + "&period2=" + str(flag_day_sec + 3600 * 24 * (dif + 1)) + "&interval=1d&filter=history&frequency=1d")
@@ -507,7 +508,7 @@ class StockObj:
 
     def main(self):
         # database = "/Users/chenyanyang/tst.db"
-        database = "D:\\stks\\tst.db"
+        database = "/home/Aaron/PyStocks/tst.db"
         # create a database connection
         conn = self.create_connection(database)
         with conn:
@@ -537,7 +538,7 @@ class StockObj:
 
     def mainO(self):
         # database = "/Users/chenyanyang/tst.db"
-        database = "D:\\stks\\otst.db"
+        database = "/home/Aaron/PyStocks/tst.db"
         # create a database connection
         conn = self.create_connection(database)
         with conn:
@@ -565,22 +566,24 @@ class StockObj:
                         }
                     # self.web_scrap()
 
-    def update(self):
+    def update(self, start, end):
         # database = "/Users/chenyanyang/tst.db"
-        database = "D:\\stks\\tst.db"
+        database = "/home/Aaron/PyStocks/tst.db"
         # create a database connection
         conn = self.create_connection(database)
         with conn:
             # print("1. Query task by priority:")
             # select_task_by_priority(conn, 1)
             # stk_r_list = self.web_scrap()
-            test = self.check_today_exist(conn)  # runs the follow only when today's stock data does not exist
-            if test is False:
+            #test = self.check_today_exist(conn)  # runs the follow only when today's stock data does not exist
+            if False is False:
                 lateest_day = self.check_latest(conn)
-                stk_r_list = self.update2today(lateest_day)
+                #stk_r_list = self.update2today(lateest_day)
+                
+                stk_r_list = self.update2(start, end)
                 stk_r_list = list(set(stk_r_list))
                 print(len(stk_r_list))
-
+                print(str(self.stock) + "updating")
                 for stk in stk_r_list:
                     try:
                         stock_1 = (self.stock, stk.Date, stk.Open, stk.High, stk.Low, stk.Close, stk.AdjClose, stk.Volumn)
