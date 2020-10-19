@@ -8,7 +8,7 @@ def search_up_days(days):
         for line in lines:
             abc = StockObj("abc", str(line))
             # conn = abc.create_connection("/Users/chenyanyang/tst.db")
-            conn = abc.create_connection("/home/Aaron/PyStocks/venv/tst.db")
+            conn = abc.create_connection("/home/Aaron/PyStocks/tst.db")
 
             if abc.get_up(conn, days) is True:
                 print(str(abc.stock))

@@ -194,6 +194,49 @@ class StockObj:
         #     return False # do download data
 
 
+    def get_diff_rates(self, conn, f_days):
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        # dayset = datetime.datetime.now() - datetime.timedelta(int(3))
+        daysbefore = datetime.datetime.now() - datetime.timedelta(int(f_days) + 1) # this int should be updated when 'stock update' function is finished
+        # daysbefore = dayset - datetime.timedelta(int(f_days) + 1)  # this int should be updated when 'stock update' function is finished
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT close, stkdate FROM STOCKS where idx = " + "'" + self.stock + "'" + "and stkdate between " + "'" + daysbefore.strftime(
+                '%Y-%m-%d') + "'" + "and" + "'" + datetime.datetime.now().strftime('%Y-%m-%d') + "'" + "order by stkdate desc")
+
+        num = cur.fetchall()
+
+        # for t in num:
+        #     for v in t:
+        #         print(v)
+
+        indlist = []
+        # print(num)
+        for t in num:
+            # beautify and append data to array
+            indlist.append(float(str(t[0]).replace(",", "").replace("-", "0")))
+        
+        daycount=0
+        diff_in_percent=0
+        avg_rate=0
+        for index in reversed(range(len(indlist))):
+            if (float(indlist[index - 1]) > 0) and (float(indlist[index]) > 0):
+               diff_in_percent = (float(indlist[index]) - float(indlist[index - 1]))/float(indlist[index - 1])
+               daycount+=1
+        if daycount > 0:
+            avg_rate = diff_in_percent/daycount
+        return avg_rate
+        # if num[0][0] >= 1:
+        #     return True # do nothing
+        # else:
+        #     return False # do download data
+
+
+
     def get_upusa(self, conn, f_days):
         """
         Query all rows in the tasks table
