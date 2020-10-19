@@ -589,9 +589,9 @@ class StockObj:
                         stock_1 = (self.stock, stk.Date, stk.Open, stk.High, stk.Low, stk.Close, stk.AdjClose, stk.Volumn)
                         self.create_stock(conn, stock_1)
                     except sqlite3.IntegrityError:
-                        a=''
+ 
                     finally:
-                        b=''
+                        continue
                 # self.web_scrap()
 # with open('./UStks') as f:
 #     lines = f.read().splitlines()
