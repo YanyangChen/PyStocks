@@ -13,4 +13,4 @@ def search_rate_in_days(days):
             rate_array.append([abc.stock, abc.get_diff_rates(conn,days)]);
         print(*sorted(rate_array, key=itemgetter(1)), sep='\n')
 
-search_rate_in_days(180)
+search_rate_in_days(20)

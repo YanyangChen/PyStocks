@@ -193,7 +193,7 @@ class StockObj:
         # else:
         #     return False # do download data
 
-
+    #growth rate sample mean    
     def get_diff_rates(self, conn, f_days):
         """
         Query all rows in the tasks table
@@ -235,7 +235,57 @@ class StockObj:
         # else:
         #     return False # do download data
 
+    #TRIN:Arms index or short term trading index CFA1 LOS13.e
 
+    def get_trin(self, conn, f_days):
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        # dayset = datetime.datetime.now() - datetime.timedelta(int(3))
+        daysbefore = datetime.datetime.now() - datetime.timedelta(int(f_days) + 1) # this int should be updated when 'stock update' function is finished
+        # daysbefore = dayset - datetime.timedelta(int(f_days) + 1)  # this int should be updated when 'stock update' function is finished
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT close, volumn, stkdate FROM STOCKS where idx = " + "'" + self.stock + "'" + "and stkdate between " + "'" + daysbefore.strftime(
+                '%Y-%m-%d') + "'" + "and" + "'" + datetime.datetime.now().strftime('%Y-%m-%d') + "'" + "order by stkdate desc")
+
+        num = cur.fetchall()
+
+        # for t in num:
+        #     for v in t:
+        #         print(v)
+
+        indlist = []
+        vollist = []
+        # print(num)
+        for t in num:
+            # beautify and append data to array
+            indlist.append(float(str(t[0]).replace(",", "").replace("-", "0")))
+            vollist.append(float(str(t[1]).replace(",", "").replace("-", "0")))
+        
+        anumcount=0
+        dnumcount=0
+        avolcount=0
+        dvolcount=0
+        for index in reversed(range(len(indlist))):
+            if (float(indlist[index - 1]) > 0) and (float(indlist[index]) > 0):
+                if(float(indlist[index]) - float(indlist[index-1]) > 0):
+                    anumcount += 1
+                    avolcount += vollist[index]
+                else:
+                    dnumcount += 1
+                    dvolcount += vollist[index]
+        trin = (dvolcount/dnumcount)/(avolcount/anumcount)
+        return trin
+        # if num[0][0] >= 1:
+        #     return True # do nothing
+        # else:
+        #     return False # do download data
+
+
+    #Sharpe Ratio CFA1 LOS8.i
 
     def get_upusa(self, conn, f_days):
         """
